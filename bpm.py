@@ -23,7 +23,7 @@ class AudioAnalyzer:
 
     # Intensity over time
     pause_count = 0
-    max_volume = 1000  # Recent max volume
+    max_volume = 100  # Recent max volume
     current_intensity: int
     intensity_history: list
     y_max_history: list
@@ -111,7 +111,7 @@ class AudioAnalyzer:
             # print("threshold {:.2f}".format(threshold))
 
             # Check if there is a beat
-            if (y_avg > 1000  # Minimum intensity
+            if (y_avg > 500  # Minimum intensity
                     and (
                             bass > recent_bass_avg * self.calculate_threshold(self.bass_history)
                             or low_midrange > recent_low_midrange_avg * self.calculate_threshold(self.low_midrange_history)
@@ -181,13 +181,13 @@ class AudioAnalyzer:
             self.low_avg_time = -1
 
         # Reset tracking if intensity dropped significantly for multiple iterations
-        if y_avg < 100:
-            print("low avg {:.2f} -> new song".format(y_avg))
+        if y_avg < 50:
+            # print("low avg {:.2f} -> new song".format(y_avg))
             self.detect_new_song()
             return True
 
         if self.low_avg_time > 0 and (self.current_time - self.low_avg_time) * 1000 > 1000:
-            print("low avg (timeout) -> new song".format(y_avg))
+            # print("low avg (timeout) -> new song".format(y_avg))
             self.detect_new_song()
             return True
 
@@ -219,7 +219,7 @@ class AudioAnalyzer:
         return numpy.max([-15 * variance + 1.55, 1.2])
 
     def detect_beat(self, time_since_last_beat):
-        print("Detected: Beat")
+        # print("Detected: Beat")
         bpm_detected = 60 / time_since_last_beat
         if len(self.bpm_history) < 8:
             if bpm_detected > self.min_bpm:
@@ -242,16 +242,16 @@ class AudioAnalyzer:
         return data[abs(data - numpy.mean(data)) < m * numpy.std(data)]
 
     def detect_new_song(self):
-        print("Detected: New song")
+        # print("Detected: New song")
         self.reset_tracking()
         self.callback_new_song()
 
     def detect_pause(self):
-        print("Detected: Pause")
+        # print("Detected: Pause")
         self.callback_pause()
 
     def detect_intensity_changed(self, intensity):
-        print("New intensity: {:d}".format(intensity))
+        # print("New intensity: {:d}".format(intensity))
         self.callback_intensity_changed(intensity)
 
     def on_beat_detected(self, callback):
@@ -285,6 +285,7 @@ class SignalGenerator:
         self.callback_new_song = lambda: None
         self.callback_bpm_change = lambda: None
         self.callback_intensity_change = lambda: None
+        # self.callback_beat_track = lambda: None
 
         # Wire up detection events
         audio_analyzer.on_beat_detected(self.track_beat)
@@ -320,13 +321,16 @@ class SignalGenerator:
             #     modulo *= 2
 
         self.bar_modulo = numpy.max([1, modulo])  # Must be at least 1
-        print("Bar modulo: {:.0f}".format(self.bar_modulo))
+        # print("Bar modulo: {:.0f}".format(self.bar_modulo))
 
     def track_beat(self, beat_time, bpm):
+        # self.callback_beat = callback
+        # self.callback_beat_track()
+        # print("beat Track")
         bpm_changed = False
 
         if abs(bpm - self.bpm) > 1:
-            print("BPM changed {:d} -> {:d}".format(int(self.bpm), int(bpm)))
+            # print("BPM changed {:d} -> {:d}".format(int(self.bpm), int(bpm)))
             self.bpm = bpm
             self.recalculate_bar_modulo()
             self.callback_bpm_change(bpm)
@@ -334,12 +338,12 @@ class SignalGenerator:
 
         if self.auto_generating:
             if bpm_changed:
-                print("Sync auto generated beat")
+                # print("Sync auto generated beat")
                 self.timer.stop()
                 self.generate_beat_signal(beat_time=beat_time)
         else:
             if bpm_changed and self.can_auto_generate():
-                print("Start auto generating beat with {:d} BPM".format(int(self.bpm)))
+                # print("Start auto generating beat with {:d} BPM".format(int(self.bpm)))
                 self.auto_generating = True
             self.generate_beat_signal(beat_time=beat_time)
 
@@ -359,7 +363,7 @@ class SignalGenerator:
             beat_time = perf_counter()
 
         # Protect against too many beat signals at once
-        if beat_time - self.last_beat_time > 0.333:
+        if beat_time - self.last_beat_time > 0.3:
             self.last_beats.append(beat_time)
             if len(self.last_beats) > 8:  # Keep the last 8 beats
                 self.last_beats = self.last_beats[1:]
@@ -367,8 +371,10 @@ class SignalGenerator:
             self.beat_index += 1
 
             beat_index_mod = self.beat_index % (self.bar_modulo * 2)
-            if self.beat_index % 2 == 0:
-                self.callback_beat(int(beat_index_mod / 2))
+            # if self.beat_index % 2 == 0:
+            #     self.callback_beat(int(beat_index_mod / 2))
+            self.callback_beat(int(beat_index_mod))
+
             if beat_index_mod == 0:
                 self.callback_bar()
 

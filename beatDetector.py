@@ -1,6 +1,7 @@
 import random
 
 import osc
+import artnet
 import ui
 import sys
 from PyQt5 import QtCore, QtWidgets
@@ -10,7 +11,9 @@ from recorder import *
 
 class BeatDetector:
     ui: ui.UserInterface
-    osc_client: osc.OscClient
+    # osc_client: osc.OscClient
+    artnet_client: artnet.ArtnetClient
+
     input_recorder: InputRecorder
     timer_period = int(round(1000 / (180 / 60) / 16))  # 180bpm / 16
 
@@ -39,7 +42,8 @@ class BeatDetector:
     def __init__(self, window) -> None:
         self.ui = ui.UserInterface(self.on_auto_prog_button_clicked, self.on_input_changed)
         self.ui.setup_ui(window)
-        self.osc_client = osc.OscClient("localhost", 7701)
+        # self.osc_client = osc.OscClient("localhost", 7701)
+        self.artnet_client = artnet.ArtnetClient('192.168.2.52',0,100)
         self.auto_prog = False
 
         # Wire up beat detector and signal generation
@@ -47,12 +51,18 @@ class BeatDetector:
         self.audio_analyzer = AudioAnalyzer(self.input_recorder)
         signal_generator = SignalGenerator(self.audio_analyzer)
 
+
+       
+
         # Wire up callbacks
         signal_generator.on_beat(self.on_beat)
         signal_generator.on_bar(self.on_bar)
         signal_generator.on_new_song(self.on_new_song)
         signal_generator.on_bpm_change(self.on_bpm_change)
         signal_generator.on_intensity_change(self.on_intensity_change)
+
+        # signal_generator.callback_beat_track(self.artnetBeat)
+
 
         # Start beat detection
         self.timer = QtCore.QTimer()
@@ -64,10 +74,11 @@ class BeatDetector:
     def change_program_if_needed(self):
         if self.change_program and self.current_program_beats >= self.min_program_beats:
             new_program = self.choose_program_by_intensity()
+            self.artnet_client.changeColorScroll(new_program)
             if new_program != self.current_program:
-                print("Change program to {:d} for intensity {:d}".format(new_program, self.current_intensity))
+                # print("Change program to {:d} for intensity {:d}".format(new_program, self.current_intensity))
                 self.current_program = new_program
-                self.osc_client.send_prog_signal(new_program)
+                # self.osc_client.send_prog_signal(new_program)
             self.current_program_beats = 1
             self.change_program = False
 
@@ -91,22 +102,29 @@ class BeatDetector:
     def on_input_changed(self, index):
         self.input_recorder.change_input(index)
 
+    def artnetBeat(self):
+        self.artnet_client.artNetShow()
+
     def on_beat(self, beat_index):
         # print("beat")
-        self.osc_client.send_beat_signal()
-        self.ui.change_beat_button_color()
+        # self.osc_client.send_beat_signal()      
+        self.artnet_client.artNetShow(beat_index)
+
+        # self.ui.change_beat_button_color()
         self.ui.display_beat_index(beat_index + 1)  # Starts with 0
 
-        # Keep track how long current program is running
-        if self.auto_prog:
-            self.current_program_beats += 1
-            if self.current_program_beats > self.max_program_beats:
-                self.change_program = True
+        if beat_index % 2 == 0:
+            beat_index /= 2
+            # Keep track how long current program is running
+            if self.auto_prog:
+                self.current_program_beats += 1
+                if self.current_program_beats > self.max_program_beats:
+                    self.change_program = True
 
     def on_bar(self):
         # print("bar")
         self.change_program_if_needed()
-        self.osc_client.send_bar_signal()
+        # self.osc_client.send_bar_signal()
         self.ui.change_bar_button_color()
 
     def on_new_song(self):
@@ -126,6 +144,7 @@ class BeatDetector:
 
     def close(self):
         self.input_recorder.close()
+        self.artnet_client.artNetNode.close()
 
 
 if __name__ == "__main__":
@@ -142,4 +161,5 @@ if __name__ == "__main__":
 
     # Clean up
     beat_detector.close()
+    
     sys.exit(code)

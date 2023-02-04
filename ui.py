@@ -120,4 +120,4 @@ class UserInterface(object):
         self.input_combobox.setCurrentIndex(index)
 
     def display_input_intensity(self, level):
-        self.input_intensity.setValue(level)
+        self.input_intensity.setValue(int(level))

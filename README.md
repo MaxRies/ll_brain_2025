@@ -20,6 +20,8 @@ Required modules
 - scipy
 - python-osc
 
+`pip install -r requirements.txt`
+
 Usage
 -----
 
