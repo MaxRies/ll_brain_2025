@@ -70,6 +70,9 @@ class BeatDetector:
 
         self.timer.timeout.connect(self.audio_analyzer.analyze_audio)
         self.input_recorder.start()
+        
+        self.on_auto_prog_button_clicked()
+
 
     def change_program_if_needed(self):
         if self.change_program and self.current_program_beats >= self.min_program_beats:
