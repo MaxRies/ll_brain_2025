@@ -8,7 +8,7 @@ class ArtnetClient:
     universe = 0
     packet_size = 100
     artNetNode : StupidArtnet
-
+    
     # print(artNetNode)
     mode = 0
     colorIndex = 0
@@ -17,6 +17,8 @@ class ArtnetClient:
     alternator = 0
 
     numLamps = 10
+    mainDimmer = 128
+
 
     def __init__(self, target_ip, universe, packet_size = 100 ) -> None:
         self.target_ip = target_ip
@@ -45,7 +47,7 @@ class ArtnetClient:
 
     def setAllColor(self,r,g,b):
         for i in range(0,self.numLamps-1):
-            self.setPARLight(self.artNetNode,i, r, g, b)
+            self.setPARLight(self.artNetNode,i, r, g, b,self.mainDimmer)
 
     def setAltColor(self,r,g,b):
         if self.alternator % 2:
@@ -68,9 +70,9 @@ class ArtnetClient:
 
         for i in range(0,self.numLamps-1):
             if i % 2:
-                self.setPARLight(self.artNetNode,i, r1, g1, b1)
+                self.setPARLight(self.artNetNode,i, r1, g1, b1,self.mainDimmer)
             else:
-                self.setPARLight(self.artNetNode,i, r2, g2, b2)
+                self.setPARLight(self.artNetNode,i, r2, g2, b2,self.mainDimmer)
 
     # calm_programs = [
     #     2,  # Full Color Slow

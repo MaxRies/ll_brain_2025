@@ -1,5 +1,6 @@
+from PyQt5.QtCore import Qt
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QPushButton, QLabel
+from PyQt5.QtWidgets import QPushButton, QLabel, QSlider
 
 
 class UserInterface(object):
@@ -7,13 +8,17 @@ class UserInterface(object):
     intensity_label: QLabel
     beat_label: QLabel
     bar_label: QLabel
+
+    main_dimmer_label: QLabel
+    main_dimmer: QSlider
     colorsList = ["#a9a9a9", "#f58231", "#ffe119", "#bfef45", "#3cb44b", "#42d4f4", "#4363d8", "#f032e6"]
     beat_color_index = 0
     bar_color_index = 0
 
-    def __init__(self, auto_prog_callback, callback_input_changed):
+    def __init__(self, auto_prog_callback, callback_input_changed,main_dimmer_changed):
         self.callback_auto_prog_clicked = auto_prog_callback
         self.callback_input_changed = callback_input_changed
+        self.callback_main_dimmer_changed = main_dimmer_changed
 
     def setup_ui(self, win_plot):
         win_plot.setObjectName("win_plot")
@@ -64,9 +69,32 @@ class UserInterface(object):
         self.bar_label.setStyleSheet("padding: 5px; qproperty-alignment: AlignCenter; background-color: #a9a9a9; font-size: 18pt")
         vertical_layout.addWidget(self.bar_label)
 
+
+
+        
+        self.main_dimmer_label = QtWidgets.QLabel(central_widget)
+        self.main_dimmer_label.setObjectName("lbl_main_dimmer")
+        self.main_dimmer_label.setStyleSheet("padding: 5px; qproperty-alignment: AlignCenter; font-size: 18pt")
+        vertical_layout.addWidget(self.main_dimmer_label)       
+
+        self.main_dimmer = QtWidgets.QSlider(Qt.Horizontal)
+        self.main_dimmer.setMinimum(0)
+        self.main_dimmer.setMaximum(255)
+        self.main_dimmer.setValue(128)
+        self.main_dimmer.setTickPosition(QSlider.TicksBelow)
+        self.main_dimmer.setTickInterval(10)
+        self.main_dimmer.setFixedHeight(50)
+        self.main_dimmer.valueChanged.connect(self.on_main_dimmer_changed)
+        vertical_layout.addWidget(self.main_dimmer)
+
+
+
         win_plot.setCentralWidget(central_widget)
         self.translate_ui(win_plot)
         QtCore.QMetaObject.connectSlotsByName(win_plot)
+
+    def on_main_dimmer_changed(self):
+        self.callback_main_dimmer_changed (self.main_dimmer.value())
 
     def translate_ui(self, win_plot):
         win_plot.setWindowTitle(QtWidgets.QApplication.translate("win_plot", "Beat Detector", None))
@@ -75,6 +103,7 @@ class UserInterface(object):
         self.beat_label.setText(QtWidgets.QApplication.translate("win_plot", "Beat", None))
         self.bar_label.setText(QtWidgets.QApplication.translate("win_plot", "BPM", None))
         self.input_label.setText(QtWidgets.QApplication.translate("win_plot", "Audio Source", None))
+        self.main_dimmer_label.setText(QtWidgets.QApplication.translate("win_plot", "main dimmer", None))
 
     def change_auto_prog_state(self, enabled):
         if enabled:

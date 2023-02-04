@@ -40,7 +40,7 @@ class BeatDetector:
     ]
 
     def __init__(self, window) -> None:
-        self.ui = ui.UserInterface(self.on_auto_prog_button_clicked, self.on_input_changed)
+        self.ui = ui.UserInterface(self.on_auto_prog_button_clicked, self.on_input_changed, self.on_main_dimmer_changed)
         self.ui.setup_ui(window)
         # self.osc_client = osc.OscClient("localhost", 7701)
         self.artnet_client = artnet.ArtnetClient('192.168.2.52',0,100)
@@ -104,6 +104,9 @@ class BeatDetector:
 
     def on_input_changed(self, index):
         self.input_recorder.change_input(index)
+
+    def on_main_dimmer_changed(self, value):
+        self.artnet_client.mainDimmer = value
 
     def artnetBeat(self):
         self.artnet_client.artNetShow()
