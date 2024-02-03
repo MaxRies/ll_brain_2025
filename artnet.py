@@ -6,7 +6,7 @@ from lib.StupidArtnet import StupidArtnet
 class ArtnetClient:
     target_ip = '192.168.2.52'
     universe = 0
-    packet_size = 100
+    packet_size = 120
     artNetNode : StupidArtnet
     
     # print(artNetNode)
@@ -20,7 +20,7 @@ class ArtnetClient:
     mainDimmer = 128
 
 
-    def __init__(self, target_ip, universe, packet_size = 100 ) -> None:
+    def __init__(self, target_ip, universe, packet_size = 120 ) -> None:
         self.target_ip = target_ip
         self.universe = universe
         self.packet_size = packet_size
@@ -30,19 +30,34 @@ class ArtnetClient:
 
 
     def setPARLight(self, artNetNode, lampe, r, g, b,dimmer = 255, effect= 0, speed= 0):
-        offset = lampe * 6
-        
-        artNetNode.set_single_value(1 + offset, dimmer) # master dimmer
-        artNetNode.set_single_value(2 + offset, r)	   # red channel
+        if(lampe <=6):
+            # saberl
+            self.setSaber(artNetNode,lampe,r,g,b,0)
+        else:
+            offset = lampe * 6 + (6*8)
+            
+            artNetNode.set_single_value(1 + offset, dimmer) # master dimmer
+            artNetNode.set_single_value(2 + offset, r)	   # red channel
+            artNetNode.set_single_value(3 + offset, g)	   # green channel
+            artNetNode.set_single_value(4 + offset, b)	   # blue channel
+            # 0-50    strobe and linear dimming
+            # 51-100  Transition
+            # 101-150 Gradient
+            # 151-200 Variable pulse
+            # 201-255 sound control
+            artNetNode.set_single_value(5 + offset, effect)	   # effect channel
+            artNetNode.set_single_value(6 + offset, speed)	   # effect speed channel
+
+    def setSaber(self, artNetNode, lampe, r, g, b,w):
+        offset = lampe * 8
+        artNetNode.set_single_value(1 + offset, r)	   # red channel
+        artNetNode.set_single_value(2 + offset, 0)	   # red channel
         artNetNode.set_single_value(3 + offset, g)	   # green channel
-        artNetNode.set_single_value(4 + offset, b)	   # blue channel
-        # 0-50    strobe and linear dimming
-        # 51-100  Transition
-        # 101-150 Gradient
-        # 151-200 Variable pulse
-        # 201-255 sound control
-        artNetNode.set_single_value(5 + offset, effect)	   # effect channel
-        artNetNode.set_single_value(6 + offset, speed)	   # effect speed channel
+        artNetNode.set_single_value(4 + offset, 0)	   # green channel
+        artNetNode.set_single_value(5 + offset, b)	   # blue channel
+        artNetNode.set_single_value(6 + offset, 0)	   # blue channel
+        artNetNode.set_single_value(7 + offset, w)	   # white channel        
+        artNetNode.set_single_value(8 + offset, 0)	   # white channel
 
 
     def setAllColor(self,r,g,b):

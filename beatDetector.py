@@ -43,7 +43,7 @@ class BeatDetector:
         self.ui = ui.UserInterface(self.on_auto_prog_button_clicked, self.on_input_changed, self.on_main_dimmer_changed)
         self.ui.setup_ui(window)
         # self.osc_client = osc.OscClient("localhost", 7701)
-        self.artnet_client = artnet.ArtnetClient('192.168.2.52',0,100)
+        self.artnet_client = artnet.ArtnetClient('192.168.2.52',0,120)
         self.auto_prog = False
 
         # Wire up beat detector and signal generation
