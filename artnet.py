@@ -32,9 +32,9 @@ class ArtnetClient:
     def setPARLight(self, artNetNode, lampe, r, g, b,dimmer = 255, effect= 0, speed= 0):
         if(lampe <=6):
             # saberl
-            self.setSaber(artNetNode,lampe,r,g,b,0)
+            self.setSaber(artNetNode,lampe,dimmer,r,g,b,0)
         else:
-            offset = lampe * 6 + (6*8)
+            offset = (lampe-7) * 6 + (50)
             
             artNetNode.set_single_value(1 + offset, dimmer) # master dimmer
             artNetNode.set_single_value(2 + offset, r)	   # red channel
@@ -48,15 +48,17 @@ class ArtnetClient:
             artNetNode.set_single_value(5 + offset, effect)	   # effect channel
             artNetNode.set_single_value(6 + offset, speed)	   # effect speed channel
 
-    def setSaber(self, artNetNode, lampe, r, g, b,w):
+    def setSaber(self, artNetNode, lampe,dimmer, r, g, b,w):
         offset = lampe * 8
-        artNetNode.set_single_value(1 + offset, r)	   # red channel
+        di = dimmer/256 
+
+        artNetNode.set_single_value(1 + offset, int(r*di))	   # red channel
         artNetNode.set_single_value(2 + offset, 0)	   # red channel
-        artNetNode.set_single_value(3 + offset, g)	   # green channel
+        artNetNode.set_single_value(3 + offset, int(g*di))	   # green channel
         artNetNode.set_single_value(4 + offset, 0)	   # green channel
-        artNetNode.set_single_value(5 + offset, b)	   # blue channel
+        artNetNode.set_single_value(5 + offset, int(b*di))	   # blue channel
         artNetNode.set_single_value(6 + offset, 0)	   # blue channel
-        artNetNode.set_single_value(7 + offset, w)	   # white channel        
+        artNetNode.set_single_value(7 + offset, int(w*di))	   # white channel        
         artNetNode.set_single_value(8 + offset, 0)	   # white channel
 
 
