@@ -51,15 +51,25 @@ class BeatDetector:
         # self.osc_client = osc.OscClient("localhost", 7701)
         # self.artnet_client = artnet.ArtnetClient('192.168.2.52',0,120)
 
-        BROKER = "192.168.2.10"
+        BROKER = "192.168.178.50"
         PORT = 1883
         lamp_topics = [
-            "zigbee2mqtt/lamp1/set",
-            "zigbee2mqtt/lamp2/set",
-            "zigbee2mqtt/lamp3/set",
-            "zigbee2mqtt/lamp4/set"
+            "zigbee2mqtt/WSP_A3/set",
+            "zigbee2mqtt/WSP_A5/set",
+            "zigbee2mqtt/WSP_B2/set",
+            "zigbee2mqtt/WSP_B8/set",
+            "zigbee2mqtt/WSP_C6/set",
+            "zigbee2mqtt/WSP_C7/set",
+            # "zigbee2mqtt/WSP_C8/set",
+            "zigbee2mqtt/WSP_C9/set",
+            "zigbee2mqtt/WSP_C10/set",
+            "zigbee2mqtt/WSP_C11/set",
+            # "zigbee2mqtt/WSP_C12/set",
+            "zigbee2mqtt/WSP_C13/set"
         ]
-        
+
+        # lamp_topics = ['WSP_A3', 'WSP_A5', 'WSP_B2', 'WSP_B8', 'WSP_C6', 'WSP_C7', 'WSP_C9', 'WSP_C10', 'WSP_C11', 'WSP_C13']
+
         self.beat_controller = BeatLampController(BROKER, PORT, lamp_topics, blink_duration=0.2)
 
         self.auto_prog = False

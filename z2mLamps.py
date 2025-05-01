@@ -17,7 +17,6 @@ class BeatLampController:
         self.port = port
         self.lamp_topics = lamp_topics
         self.blink_duration = blink_duration
-        self.lamp_index = 0
 
         # MQTT-Client einrichten und verbinden
         self.client = mqtt.Client()
@@ -67,9 +66,15 @@ class BeatLampController:
         if "brightness" in payload:
             brightness = payload["brightness"]
             adjusted = int(brightness * self.global_dimmer)
-            # Sicherstellen, dass der Wert im gültigen Bereich (0-255) liegt
             payload["brightness"] = max(0, min(255, adjusted))
         return payload
+
+    def hold_payload(self):
+        """
+        Gibt das Payload zurück, das die Lampe in einem leichten Rot leuchten lässt.
+        """
+        payload_hold = {"color": {"hue": 0, "saturation": 80}, "brightness": 120}
+        return self.apply_dimmer(payload_hold)
 
     def select_pattern(self, pattern_num: int):
         """
@@ -91,19 +96,23 @@ class BeatLampController:
 
     def update_on_beat(self):
         """
-        Wird bei einem Beat aufgerufen. Wendet das aktuell gewählte Muster auf die
-        nächste Lampe im Array an.
+        Wird bei einem Beat aufgerufen.
+        Wählt zufällig eine Anzahl (zwischen 1 und bis zu 4 oder der Anzahl verfügbarer Lampen) an
+        Lampen aus und wendet auf jede das aktuell gewählte Blinkmuster an.
         """
         if not self.lamp_topics:
             print("Keine Lampen-Topics definiert.")
             return
 
-        # Zyklisches Durchlaufen der Lampen-Topics
-        topic = self.lamp_topics[self.lamp_index]
-        self.lamp_index = (self.lamp_index + 1) % len(self.lamp_topics)
+        # Bestimme zufällig, wie viele Lampen leuchten sollen (mindestens 1, maximal 4 oder Anzahl der Topics)
+        max_lamps = min(4, len(self.lamp_topics))
+        count = random.randint(1, max_lamps)
+        selected_topics = random.sample(self.lamp_topics, count)
+        print(f"Für diesen Beat werden {count} Lampen angesprochen: {selected_topics}")
 
-        # Wende das aktuelle Muster an
-        self.current_pattern(topic)
+        # Wende das aktuelle Muster auf alle ausgewählten Lampen an
+        for topic in selected_topics:
+            self.current_pattern(topic)
 
     def pattern_random(self, topic):
         """
@@ -120,8 +129,9 @@ class BeatLampController:
         self.client.publish(topic, json.dumps(payload_on))
         print(f"[Random] {topic} => {payload_on}")
         time.sleep(self.blink_duration)
-        self.client.publish(topic, json.dumps({"state": "OFF"}))
-        print(f"[Random] {topic} ausgeschaltet.")
+        payload_hold = self.hold_payload()
+        self.client.publish(topic, json.dumps(payload_hold))
+        print(f"[Random] {topic} bleibt in leichtem Rot: {payload_hold}")
 
     def pattern_cycle(self, topic):
         """
@@ -137,8 +147,9 @@ class BeatLampController:
         self.client.publish(topic, json.dumps(payload))
         print(f"[Cycle] {topic} => {payload}")
         time.sleep(self.blink_duration)
-        self.client.publish(topic, json.dumps({"state": "OFF"}))
-        print(f"[Cycle] {topic} ausgeschaltet.")
+        payload_hold = self.hold_payload()
+        self.client.publish(topic, json.dumps(payload_hold))
+        print(f"[Cycle] {topic} bleibt in leichtem Rot: {payload_hold}")
 
     def pattern_flicker(self, topic):
         """
@@ -157,9 +168,11 @@ class BeatLampController:
             self.client.publish(topic, json.dumps(payload_on))
             print(f"[Flicker] {topic} ({i+1}/{flicker_times}) => {payload_on}")
             time.sleep(self.blink_duration / 2)
-            self.client.publish(topic, json.dumps({"state": "OFF"}))
+            # Anstelle von OFF: leichte rote Farbe
+            payload_hold = self.hold_payload()
+            self.client.publish(topic, json.dumps(payload_hold))
             time.sleep(self.blink_duration / 2)
-        print(f"[Flicker] {topic} Flicker-Effekt beendet.")
+        print(f"[Flicker] {topic} Flicker-Effekt beendet. Lampe bleibt in leichtem Rot.")
 
     def pattern_strobe(self, topic):
         """
@@ -178,9 +191,10 @@ class BeatLampController:
             self.client.publish(topic, json.dumps(payload_on))
             print(f"[Strobe] {topic} ({i+1}/{strobe_cycles}) => {payload_on}")
             time.sleep(self.blink_duration / 4)
-            self.client.publish(topic, json.dumps({"state": "OFF"}))
+            payload_hold = self.hold_payload()
+            self.client.publish(topic, json.dumps(payload_hold))
             time.sleep(self.blink_duration / 4)
-        print(f"[Strobe] {topic} Strobe-Effekt beendet.")
+        print(f"[Strobe] {topic} Strobe-Effekt beendet. Lampe bleibt in leichtem Rot.")
 
     def pattern_pulse(self, topic):
         """
@@ -214,8 +228,9 @@ class BeatLampController:
             self.client.publish(topic, json.dumps(payload))
             time.sleep(step_duration)
 
-        self.client.publish(topic, json.dumps({"state": "OFF"}))
-        print(f"[Pulse] {topic} Pulse-Effekt beendet.")
+        payload_hold = self.hold_payload()
+        self.client.publish(topic, json.dumps(payload_hold))
+        print(f"[Pulse] {topic} Pulse-Effekt beendet. Lampe bleibt in leichtem Rot.")
 
     def disconnect(self):
         """Trennt die MQTT-Verbindung."""
@@ -231,7 +246,8 @@ if __name__ == "__main__":
         "zigbee2mqtt/lamp1/set",
         "zigbee2mqtt/lamp2/set",
         "zigbee2mqtt/lamp3/set",
-        "zigbee2mqtt/lamp4/set"
+        "zigbee2mqtt/lamp4/set",
+        "zigbee2mqtt/lamp5/set"  # Falls mehr Lampen vorhanden sind
     ]
 
     beat_controller = BeatLampController(BROKER, PORT, lamp_topics, blink_duration=0.2)
