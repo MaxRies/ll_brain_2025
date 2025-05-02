@@ -208,7 +208,8 @@ if __name__ == "__main__":
     beat_detector = BeatDetector(window)
 
     # Display window
-    window.show()
+    # window.show()
+    window.showMaximized()
     code = app.exec_()
 
     # Clean up

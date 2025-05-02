@@ -51,9 +51,9 @@ class lightshow:
         if program == 12:
             self._queue_beat.put(("setHoldColorHSB",  [0,80,120]))            
         elif program == 13:
-            self._queue_beat.put(("setHoldColorHSB",  [150,50,120]))
+            self._queue_beat.put(("setHoldColorHSB",  [37,100,254]))
         elif program == 14:
-            self._queue_beat.put(("setHoldColorHSB",  [260,80,120]))
+            self._queue_beat.put(("setHoldColorHSB",  [240,100,120]))
         elif program == 15:
             self._queue_beat.put(("setHoldColorHSB",  [0,0,0]))                        
 
