@@ -29,16 +29,22 @@ class BeatDetector:
         2,  # Full Color Slow
         5,  # Retro
         8,  # Wipe Noise
+        10,
+        11
     ]
     normal_programs = [
         1,  # Full Color Moving
         3,  # Fill Up Once
-        6,  # Kitt
+        6,  # Kit
+        12,
+        13,
     ]
     intense_programs = [
         4,  # Fill Up Repeat
         7,  # Flash Noise
         9,  # Flash Noise
+        14,
+        15
     ]
 
     def __init__(self, window) -> None:

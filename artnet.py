@@ -183,9 +183,28 @@ class ArtnetClient:
             self.colorScroll = [(255,0,0),(192,0,192)]
         elif program == 8:
             self.colorScroll = [(192,128,0)]      
-            self.mode = 12                                          
+            self.mode = 2     
+        elif program == 9:
+            self.colorScroll = [(255,0,255),(0,255,0)]   
+            self.mode = 1    
+        elif program == 10:
+            self.colorScroll = [(255,255,50),(255,0,0)]   
+            self.mode = 1   
+        elif program == 11:
+            self.colorScroll = [(255,255,0),(0,0,255)]   
+            self.mode = 1       
+        elif program == 12:
+            self.colorScroll = [(255,0,255),(0,0,255)]   
+            self.mode = 2    
+        elif program == 13:
+            self.colorScroll = [(255,0,0),(0,0,255)]   
+            self.mode = 3    
+        elif program == 14:
+            self.colorScroll = [(0,255,0),(0,0,255)]   
+            self.mode = 4    
         else:
             self.colorScroll = [(255,0,0),(0,0,255)]
+            self.mode = 1  
         
         print("Change colorScroll to {:d} and mode to {:d}".format(program, self.mode))   
 

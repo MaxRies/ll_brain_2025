@@ -5,6 +5,7 @@ import artnet
 from z2mLamps import BeatLampController
 
 class lightshow:
+    beatdiff = 0
     def __init__(self) -> None:
         # Queues pro Komponente
         self._queue_bls = queue.Queue()
@@ -44,20 +45,25 @@ class lightshow:
         self._queue_bls.put(("setProgram",       [program]))
         self._queue_artnet.put(("changeColorScroll", [program]))
 
-        if program < 13:
-            self._queue_beat.put(("select_pattern",  [program]))
+        # if program < 12:
+        self._queue_beat.put(("select_pattern",  [program]))
+
+        if program == 12:
+            self._queue_beat.put(("setHoldColorHSB",  [0,80,120]))            
         elif program == 13:
-            self._queue_beat.put(("setHoldColorHSB",  [0,80,120]))
+            self._queue_beat.put(("setHoldColorHSB",  [150,50,120]))
         elif program == 14:
-            self._queue_beat.put(("setHoldColorHSB",  [0,200,120]))
+            self._queue_beat.put(("setHoldColorHSB",  [260,80,120]))
         elif program == 15:
-            self._queue_beat.put(("setHoldColorHSB",  [0,320,120]))                        
+            self._queue_beat.put(("setHoldColorHSB",  [0,0,0]))                        
 
     def send_beat_signal(self):
         self._queue_bls.put(("tick",             []))
         self._queue_artnet.put(("artNetShow",      []))
-        # ggf. Beat-Update hierher verschieben, falls gewünscht
-        self._queue_beat.put(("update_on_beat", []))
+
+        self.beatdiff = (self.beatdiff+1) % 2
+        if self.beatdiff == 0:
+            self._queue_beat.put(("update_on_beat", []))
 
     def setMainDimmer(self, dimmer):
         self.mainDimmer = dimmer
