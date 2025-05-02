@@ -113,7 +113,7 @@ class UserInterface(object):
         self.strobo_button = QtWidgets.QPushButton("Strobo", central_widget)
         self.strobo_button.setCheckable(True)
         self.strobo_button.setFixedHeight(60)
-        self.strobo_button.setStyleSheet("padding: 0px; qproperty-alignment: AlignCenter; font-size: 12pt")
+        self.strobo_button.setStyleSheet("padding: 0px; font-size: 12pt")
         self.strobo_button.pressed.connect(self.on_strobo_pressed)
         self.strobo_button.released.connect(self.on_strobo_released)
 

@@ -97,6 +97,7 @@ class BeatDetector:
         # print(f"Grid-Button {index} geklickt")
         # wenn einer der 16 Buttons gedrückt wird, führe Programm-Wechsel aus
         # schalte Auto-Prog aus
+
         self.auto_prog = False
         self.ui.change_auto_prog_state(False)
         # setze das neue Programm
@@ -106,6 +107,9 @@ class BeatDetector:
         self.lightshow_client.send_prog_signal(index)
         # optional: UI-Feedback, z.B. Label aktualisieren
         print(f"Programm gewechselt auf {index}")
+
+
+
 
 
     def change_program_if_needed(self):

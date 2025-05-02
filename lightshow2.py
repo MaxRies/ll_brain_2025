@@ -14,7 +14,8 @@ class lightshow:
 
         # Objekte
         self.bls = baulichter.baulichter('10.39.0.54', 0)
-        self.artnet_client = artnet.ArtnetClient('192.168.178.70', 0, 256)
+        self.artnet_client = artnet.ArtnetClient('192.168.178.70', 0 )
+        # self.artnet_client = artnet.ArtnetClient('192.168.2.52', 0, 120)
         BROKER, PORT = "192.168.178.50", 1883
         lamp_topics = [f"zigbee2mqtt/WSP_A{i+1}/set" for i in range(8)]
         self.beat_controller = BeatLampController(BROKER, PORT, lamp_topics, blink_duration=0.2)
@@ -42,7 +43,15 @@ class lightshow:
         # Befehle in die Queues schieben, nicht direkt ausführen
         self._queue_bls.put(("setProgram",       [program]))
         self._queue_artnet.put(("changeColorScroll", [program]))
-        self._queue_beat.put(("select_pattern",  [program]))
+
+        if program < 13:
+            self._queue_beat.put(("select_pattern",  [program]))
+        elif program == 13:
+            self._queue_beat.put(("setHoldColorHSB",  [0,80,120]))
+        elif program == 14:
+            self._queue_beat.put(("setHoldColorHSB",  [0,200,120]))
+        elif program == 15:
+            self._queue_beat.put(("setHoldColorHSB",  [0,320,120]))                        
 
     def send_beat_signal(self):
         self._queue_bls.put(("tick",             []))

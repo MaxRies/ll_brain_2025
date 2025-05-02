@@ -31,6 +31,9 @@ class BeatLampController:
             {"color": {"hue": 60, "saturation": 100}, "brightness": 255}    # Gelb
         ]
         self.pattern_cycle_index = 0  # Index für das Cycle-Muster
+        self.hold_h = 0
+        self.hold_s = 80
+        self.hold_b = 120
 
         # Verfügbare Muster:
         # 0 = Random, 1 = Cycle, 2 = Flicker, 3 = Strobe, 4 = Pulse
@@ -45,6 +48,10 @@ class BeatLampController:
 
         # Globaler Dimmer (Standard = 1.0, also 100% Helligkeit)
         self.global_dimmer = 1.0
+
+
+
+
 
     def set_global_dimmer(self, dimmer_value: float):
         """
@@ -69,11 +76,19 @@ class BeatLampController:
             payload["brightness"] = max(0, min(255, adjusted))
         return payload
 
+    def setHoldColorRGB(self,r,g,b):
+        self.hold_h,self.hold_s,self.hold_b = self.rgb_to_hsb(r, g, b)
+
+    def setHoldColorHSB(self,h,s,b):
+        self.hold_h = h
+        self.hold_s = s
+        self.hold_b = b
+
     def hold_payload(self):
         """
         Gibt das Payload zurück, das die Lampe in einem leichten Rot leuchten lässt.
         """
-        payload_hold = {"color": {"hue": 0, "saturation": 80}, "brightness": 120}
+        payload_hold = {"color": {"hue":self.hold_h, "saturation": self.hold_s}, "brightness": self.hold_b}
         return self.apply_dimmer(payload_hold)
 
     def select_pattern(self, pattern_num: int):
@@ -238,7 +253,40 @@ class BeatLampController:
         self.client.disconnect()
         print("MQTT-Verbindung getrennt.")
 
+    def rgb_to_hsb(self, r: int, g: int, b: int):
+        """
+        Wandelt RGB-Werte (0–255) in HSB/HSV um.
 
+        Returns:
+            h: Hue in Grad [0, 360)
+            s: Saturation [0, 1]
+            v: Brightness/Value [0, 1]
+        """
+        # Normiere auf [0,1]
+        r_, g_, b_ = r / 255.0, g / 255.0, b / 255.0
+
+        mx = max(r_, g_, b_)
+        mn = min(r_, g_, b_)
+        diff = mx - mn
+
+        # Hue
+        if diff == 0:
+            h = 0
+        elif mx == r_:
+            h = (60 * ((g_ - b_) / diff) + 360) % 360
+        elif mx == g_:
+            h = (60 * ((b_ - r_) / diff) + 120) % 360
+        else:  # mx == b_
+            h = (60 * ((r_ - g_) / diff) + 240) % 360
+
+        # Saturation
+        s = 0 if mx == 0 else diff / mx
+
+        # Brightness
+        v = mx
+
+        return h, s, v
+    
 # Beispiel zur Verwendung der Klasse:
 if __name__ == "__main__":
     BROKER = "192.168.178.50"
