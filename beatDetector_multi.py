@@ -1,7 +1,7 @@
+#!/usr/bin/env python3
+
 import random
-
 import lightshow2
-
 import ui
 import sys
 from PyQt5 import QtCore, QtWidgets
