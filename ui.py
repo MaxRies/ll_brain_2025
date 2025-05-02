@@ -41,7 +41,7 @@ class UserInterface(object):
 
         # Input Bereich
         input_widget = QtWidgets.QWidget(central_widget)
-        input_widget.setFixedHeight(0)
+        input_widget.setFixedHeight(30)
         vertical_layout_input = QtWidgets.QVBoxLayout(input_widget)
 
         self.input_label = QtWidgets.QLabel(central_widget)
@@ -54,11 +54,11 @@ class UserInterface(object):
 
         self.input_intensity = QtWidgets.QProgressBar(central_widget)
         self.input_intensity.setStyleSheet(
-            "QProgressBar { border: 2px solid grey; border-radius: 0px; text-align: center; }"
+            "QProgressBar { border: 0px solid grey; border-radius: 0px; text-align: center; }"
             "QProgressBar::chunk {background-color: #3add36; width: 1px;}"
         )
         self.input_intensity.setTextVisible(False)
-        self.input_intensity.setFixedHeight(12)
+        self.input_intensity.setFixedHeight(10)
         self.input_intensity.setValue(0)
 
         vertical_layout_input.addWidget(self.input_label)
@@ -76,13 +76,13 @@ class UserInterface(object):
         # Status Labels
         self.intensity_label = QLabel("Intensity", central_widget)
         self.intensity_label.setStyleSheet(
-            "padding: 3px; qproperty-alignment: AlignCenter; background-color: #a9a9a9; font-size: 14pt"
+            "padding: 3px; qproperty-alignment: AlignCenter; background-color: #a9a9a9; font-size: 12pt"
         )
         controls_layout.addWidget(self.intensity_label)
 
         self.beat_label = QLabel("Beat", central_widget)
         self.beat_label.setStyleSheet(
-            "padding: 3px; qproperty-alignment: AlignCenter; background-color: #a9a9a9; font-size: 14pt"
+            "padding: 3px; qproperty-alignment: AlignCenter; background-color: #a9a9a9; font-size: 12pt"
         )
         controls_layout.addWidget(self.beat_label)
 
@@ -93,9 +93,9 @@ class UserInterface(object):
         controls_layout.addWidget(self.bar_label)
 
         # Main Dimmer
-        self.main_dimmer_label = QLabel("main dimmer", central_widget)
-        self.main_dimmer_label.setStyleSheet("padding: 0px; qproperty-alignment: AlignCenter; font-size: 10pt")
-        controls_layout.addWidget(self.main_dimmer_label)
+        # self.main_dimmer_label = QLabel("main dimmer", central_widget)
+        # self.main_dimmer_label.setStyleSheet("padding: 0px; qproperty-alignment: AlignCenter; font-size: 10pt")
+        # controls_layout.addWidget(self.main_dimmer_label)
 
         self.main_dimmer = QSlider(Qt.Horizontal)
         self.main_dimmer.setMinimum(0)
@@ -181,7 +181,7 @@ class UserInterface(object):
         self.beat_label.setText(QtWidgets.QApplication.translate("win_plot", "Beat", None))
         self.bar_label.setText(QtWidgets.QApplication.translate("win_plot", "BPM", None))
         self.input_label.setText(QtWidgets.QApplication.translate("win_plot", "Audio Source", None))
-        self.main_dimmer_label.setText(QtWidgets.QApplication.translate("win_plot", "main dimmer", None))
+        # self.main_dimmer_label.setText(QtWidgets.QApplication.translate("win_plot", "main dimmer", None))
 
     def change_auto_prog_state(self, enabled):
         if enabled:
@@ -194,12 +194,12 @@ class UserInterface(object):
     def change_beat_button_color(self):
         self.beat_color_index += 1
         color = self.colorsList[self.beat_color_index % len(self.colorsList)]
-        self.beat_label.setStyleSheet("padding: 5px; qproperty-alignment: AlignCenter; background-color: {:s}; font-size: 14pt".format(color))
+        self.beat_label.setStyleSheet("padding: 5px; qproperty-alignment: AlignCenter; background-color: {:s}; font-size: 12pt".format(color))
 
     def change_bar_button_color(self):
         self.bar_color_index += 1
         color = self.colorsList[self.bar_color_index % len(self.colorsList)]
-        self.bar_label.setStyleSheet("padding: 5px; qproperty-alignment: AlignCenter; background-color: {:s}; font-size: 14pt".format(color))
+        self.bar_label.setStyleSheet("padding: 5px; qproperty-alignment: AlignCenter; background-color: {:s}; font-size: 12pt".format(color))
 
     def display_intensity(self, intensity):
         if intensity == 1:
