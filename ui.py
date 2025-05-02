@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QPushButton, QLabel, QSlider, QGridLayout
+from PyQt5.QtWidgets import QHBoxLayout, QLabel
 
 class UserInterface(object):
     auto_prog_button: QPushButton
@@ -40,13 +41,13 @@ class UserInterface(object):
 
         # Input Bereich
         input_widget = QtWidgets.QWidget(central_widget)
-        input_widget.setFixedHeight(95)
+        input_widget.setFixedHeight(0)
         vertical_layout_input = QtWidgets.QVBoxLayout(input_widget)
 
         self.input_label = QtWidgets.QLabel(central_widget)
         self.input_combobox = QtWidgets.QComboBox(central_widget)
         self.input_combobox.setStyleSheet(
-            "background-color: #a9a9a9; font-size: 15pt;"
+            "background-color: #a9a9a9; font-size: 14pt;"
             "selection-background-color: transparent; selection-color: black"
         )
         self.input_combobox.activated.connect(self.callback_input_changed)
@@ -57,7 +58,7 @@ class UserInterface(object):
             "QProgressBar::chunk {background-color: #3add36; width: 1px;}"
         )
         self.input_intensity.setTextVisible(False)
-        self.input_intensity.setFixedHeight(15)
+        self.input_intensity.setFixedHeight(12)
         self.input_intensity.setValue(0)
 
         vertical_layout_input.addWidget(self.input_label)
@@ -67,7 +68,7 @@ class UserInterface(object):
 
         # Auto Prog Button
         self.auto_prog_button = QtWidgets.QPushButton(central_widget)
-        self.auto_prog_button.setStyleSheet("background-color: red; font-size: 18pt")
+        self.auto_prog_button.setStyleSheet("background-color: red; font-size: 14pt")
         self.auto_prog_button.clicked.connect(self.callback_auto_prog_clicked)
         controls_layout.addWidget(self.auto_prog_button)
 
@@ -75,25 +76,25 @@ class UserInterface(object):
         # Status Labels
         self.intensity_label = QLabel("Intensity", central_widget)
         self.intensity_label.setStyleSheet(
-            "padding: 5px; qproperty-alignment: AlignCenter; background-color: #a9a9a9; font-size: 18pt"
+            "padding: 3px; qproperty-alignment: AlignCenter; background-color: #a9a9a9; font-size: 14pt"
         )
         controls_layout.addWidget(self.intensity_label)
 
         self.beat_label = QLabel("Beat", central_widget)
         self.beat_label.setStyleSheet(
-            "padding: 5px; qproperty-alignment: AlignCenter; background-color: #a9a9a9; font-size: 18pt"
+            "padding: 3px; qproperty-alignment: AlignCenter; background-color: #a9a9a9; font-size: 14pt"
         )
         controls_layout.addWidget(self.beat_label)
 
         self.bar_label = QLabel("BPM", central_widget)
         self.bar_label.setStyleSheet(
-            "padding: 5px; qproperty-alignment: AlignCenter; background-color: #a9a9a9; font-size: 18pt"
+            "padding: 3px; qproperty-alignment: AlignCenter; background-color: #a9a9a9; font-size: 14pt"
         )
         controls_layout.addWidget(self.bar_label)
 
         # Main Dimmer
         self.main_dimmer_label = QLabel("main dimmer", central_widget)
-        self.main_dimmer_label.setStyleSheet("padding: 5px; qproperty-alignment: AlignCenter; font-size: 18pt")
+        self.main_dimmer_label.setStyleSheet("padding: 0px; qproperty-alignment: AlignCenter; font-size: 10pt")
         controls_layout.addWidget(self.main_dimmer_label)
 
         self.main_dimmer = QSlider(Qt.Horizontal)
@@ -102,17 +103,20 @@ class UserInterface(object):
         self.main_dimmer.setValue(128)
         self.main_dimmer.setTickPosition(QSlider.TicksBelow)
         self.main_dimmer.setTickInterval(10)
-        self.main_dimmer.setFixedHeight(50)
+        self.main_dimmer.setFixedHeight(40)
         self.main_dimmer.valueChanged.connect(self.on_main_dimmer_changed)
         controls_layout.addWidget(self.main_dimmer)
+
 
 
         # Strobo Button (löst alle 100ms callback aus, solange gedrückt)
         self.strobo_button = QtWidgets.QPushButton("Strobo", central_widget)
         self.strobo_button.setCheckable(True)
         self.strobo_button.setFixedHeight(60)
+        self.strobo_button.setStyleSheet("padding: 0px; qproperty-alignment: AlignCenter; font-size: 12pt")
         self.strobo_button.pressed.connect(self.on_strobo_pressed)
         self.strobo_button.released.connect(self.on_strobo_released)
+
         controls_layout.addWidget(self.strobo_button)
 
 
@@ -121,13 +125,13 @@ class UserInterface(object):
         # --- Rechte Spalte: 4x4 Button Grid ---
         grid_widget = QtWidgets.QWidget(central_widget)
         grid_layout = QGridLayout(grid_widget)
-        grid_layout.setSpacing(10)
+        grid_layout.setSpacing(8)
         self.grid_buttons = []
         for row in range(4):
             for col in range(4):
                 idx = row * 4 + col
                 btn = QPushButton(f"B{idx+1}")
-                btn.setFixedSize(80, 80)
+                btn.setFixedSize(70, 70)
                 btn.clicked.connect(lambda checked, i=idx: self.on_grid_button_clicked(i))
                 grid_layout.addWidget(btn, row, col)
                 self.grid_buttons.append(btn)
@@ -182,20 +186,20 @@ class UserInterface(object):
     def change_auto_prog_state(self, enabled):
         if enabled:
             self.auto_prog_button.setText("Auto Prog ON")
-            self.auto_prog_button.setStyleSheet("background-color: green; font-size: 18pt")
+            self.auto_prog_button.setStyleSheet("background-color: green; font-size: 14pt")
         else:
             self.auto_prog_button.setText("Auto Prog OFF")
-            self.auto_prog_button.setStyleSheet("background-color: red; font-size: 18pt")
+            self.auto_prog_button.setStyleSheet("background-color: red; font-size: 14pt")
 
     def change_beat_button_color(self):
         self.beat_color_index += 1
         color = self.colorsList[self.beat_color_index % len(self.colorsList)]
-        self.beat_label.setStyleSheet("padding: 5px; qproperty-alignment: AlignCenter; background-color: {:s}; font-size: 18pt".format(color))
+        self.beat_label.setStyleSheet("padding: 5px; qproperty-alignment: AlignCenter; background-color: {:s}; font-size: 14pt".format(color))
 
     def change_bar_button_color(self):
         self.bar_color_index += 1
         color = self.colorsList[self.bar_color_index % len(self.colorsList)]
-        self.bar_label.setStyleSheet("padding: 5px; qproperty-alignment: AlignCenter; background-color: {:s}; font-size: 18pt".format(color))
+        self.bar_label.setStyleSheet("padding: 5px; qproperty-alignment: AlignCenter; background-color: {:s}; font-size: 14pt".format(color))
 
     def display_intensity(self, intensity):
         if intensity == 1:
