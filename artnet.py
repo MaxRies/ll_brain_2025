@@ -1,5 +1,5 @@
 from lib.StupidArtnet import StupidArtnet
-
+import time
 
 
 
@@ -17,7 +17,11 @@ class ArtnetClient:
     alternator = 0
 
     numLamps = 10
+    numSaber = 4
     mainDimmer = 128
+
+    parOffset = 0
+    saberOffset = 100
 
 
     def __init__(self, target_ip, universe, packet_size = 120 ) -> None:
@@ -30,11 +34,11 @@ class ArtnetClient:
 
 
     def setPARLight(self, artNetNode, lampe, r, g, b,dimmer = 255, effect= 0, speed= 0):
-        if(lampe <=6):
+        if(lampe <=self.numSaber):
             # saberl
             self.setSaber(artNetNode,lampe,dimmer,r,g,b,0)
         else:
-            offset = (lampe-7) * 6 + (50)
+            offset = (lampe-(self.numSaber+1)) * 6 + (self.parOffset)
             
             artNetNode.set_single_value(1 + offset, dimmer) # master dimmer
             artNetNode.set_single_value(2 + offset, r)	   # red channel
@@ -49,7 +53,7 @@ class ArtnetClient:
             artNetNode.set_single_value(6 + offset, speed)	   # effect speed channel
 
     def setSaber(self, artNetNode, lampe,dimmer, r, g, b,w):
-        offset = lampe * 8
+        offset = lampe * 8 + self.saberOffset
         di = dimmer/256 
 
         artNetNode.set_single_value(1 + offset, int(r*di))	   # red channel
@@ -156,9 +160,19 @@ class ArtnetClient:
             self.setAllColor(c[0],c[1],c[2])
 
 
-    def artNetShow(self,beat_index):
+    def artNetShow(self,beat_index = 0):
 
         self.setNextColor()
         # print("artnet update " + "Beat: {:d}".format(bpm))
         self.artNetNode.show()
 
+    def strobe(self):
+        self.setAllColor(255,255,255)
+        self.artNetNode.show()  
+        time.sleep(0.05)  
+        self.setAllColor(0,0,0)
+        self.artNetNode.show()   
+
+
+    def close(self):
+        self.artNetNode.close()
