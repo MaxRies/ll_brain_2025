@@ -12,7 +12,7 @@ class UserInterface(object):
 
     main_dimmer_label: QLabel
     main_dimmer: QSlider
-    colorsList = ["#a9a9a9", "#f58231", "#ffe119", "#bfef45", "#3cb44b", "#42d4f4", "#4363d8", "#f032e6"]
+    colorsList = ["#b7b7b7", "#6b6b6b"]
     beat_color_index = 0
     bar_color_index = 0
 
@@ -127,8 +127,8 @@ class UserInterface(object):
         grid_layout = QGridLayout(grid_widget)
         grid_layout.setSpacing(8)
         self.grid_buttons = []
-        for row in range(4):
-            for col in range(4):
+        for row in range(3):
+            for col in range(3):
                 idx = row * 4 + col
                 btn = QPushButton(f"B{idx+1}")
                 btn.setFixedSize(70, 70)

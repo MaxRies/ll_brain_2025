@@ -1,7 +1,7 @@
 ###### Requirements without Version Specifiers ######
-PyAudio
-PyQt5
+# PyAudio installed via apt-get python3-pyaudio
+# PyQt5 # same
 # PyQwt
-matplotlib
-scipy
-python-osc
+#matplotlib
+#scipy
+#python-osc

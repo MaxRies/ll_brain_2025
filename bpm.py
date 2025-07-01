@@ -4,9 +4,9 @@ from recorder import *
 from time import perf_counter
 
 class AudioAnalyzer:
-    min_bpm = 80
-    max_bpm = 160
-    bpm_history_length = 16  # beats
+    min_bpm = 40
+    max_bpm = 220
+    bpm_history_length = 16  # beats, war 16
     freq_history_length = 24  # samples
     intensity_history_length = 128  # samples
     volume_history_length = 3*60  # seconds
@@ -174,6 +174,8 @@ class AudioAnalyzer:
 
     def track_low_volume(self, y_avg):
         # Detect very low volume (to detect new track)
+        return False
+        """
         if y_avg < self.max_volume * 0.05:
             if self.low_avg_time == -1:
                 self.low_avg_time = self.current_time
@@ -192,6 +194,7 @@ class AudioAnalyzer:
             return True
 
         return False
+        """
 
     def housekeeping(self):
         # Shorten the cumulative list to account for changes in dynamics
@@ -219,22 +222,22 @@ class AudioAnalyzer:
         return numpy.max([-15 * variance + 1.55, 1.2])
 
     def detect_beat(self, time_since_last_beat):
-        # print("Detected: Beat")
+        print("Detected: Beat")
         bpm_detected = 60 / time_since_last_beat
         if len(self.bpm_history) < 8:
             if bpm_detected > self.min_bpm:
                 self.bpm_history.append(bpm_detected)
         else:
             # bpm_avg = int(numpy.mean(self.bpm_history))
-            if self.current_bpm == 0 or abs(self.current_bpm - bpm_detected) < 35:
-                self.bpm_history.append(bpm_detected)
-                # Recalculate with the new BPM value included
-                self.current_bpm = self.calculate_bpm()
+            #if self.current_bpm == 0 or abs(self.current_bpm - bpm_detected) < :      # War  35. Ist die Differenz zwischen dem aktuellenbeat und der avg.
+            self.bpm_history.append(bpm_detected)
+            # Recalculate with the new BPM value included
+            self.current_bpm = self.calculate_bpm()
 
         self.callback_beat_detected(self.current_time, self.current_bpm)
 
     def calculate_bpm(self):
-        self.reject_outliers(self.bpm_history)
+        #self.reject_outliers(self.bpm_history)
         return numpy.mean(self.bpm_history)
 
     def reject_outliers(self, data, m=2.):
@@ -307,16 +310,16 @@ class SignalGenerator:
 
     def recalculate_bar_modulo(self):
         # Bar modulo based on intensity
-        modulo = 2
+        modulo = 4
         if self.intensity == 1:
-            modulo = 1
+            modulo = 4
         if self.intensity == -1:
             modulo = 4
 
         # Additional modifier based in BPM
         if self.bpm > 0:
             if self.bpm < 100:
-                modulo /= 2
+                modulo = 4
             # if self.bpm > 155:
             #     modulo *= 2
 
@@ -332,7 +335,7 @@ class SignalGenerator:
         if abs(bpm - self.bpm) > 1:
             # print("BPM changed {:d} -> {:d}".format(int(self.bpm), int(bpm)))
             self.bpm = bpm
-            self.recalculate_bar_modulo()
+            #self.recalculate_bar_modulo()
             self.callback_bpm_change(bpm)
             bpm_changed = True
 
@@ -344,7 +347,8 @@ class SignalGenerator:
         else:
             if bpm_changed and self.can_auto_generate():
                 # print("Start auto generating beat with {:d} BPM".format(int(self.bpm)))
-                self.auto_generating = True
+                #self.auto_generating = True
+                pass
             self.generate_beat_signal(beat_time=beat_time)
 
     def can_auto_generate(self):
@@ -363,20 +367,15 @@ class SignalGenerator:
             beat_time = perf_counter()
 
         # Protect against too many beat signals at once
-        if beat_time - self.last_beat_time > 0.3:
+        if beat_time - self.last_beat_time > 0.2:
             self.last_beats.append(beat_time)
             if len(self.last_beats) > 8:  # Keep the last 8 beats
                 self.last_beats = self.last_beats[1:]
             self.last_beat_time = beat_time
             self.beat_index += 1
-
-            beat_index_mod = self.beat_index % (self.bar_modulo * 2)
-            # if self.beat_index % 2 == 0:
-            #     self.callback_beat(int(beat_index_mod / 2))
-            self.callback_beat(int(beat_index_mod))
-
-            if beat_index_mod == 0:
-                self.callback_bar()
+            if self.beat_index > 3:
+                self.beat_index = 0
+            self.callback_beat(int(self.beat_index))
 
         if self.auto_generating:
             self.timer = QtCore.QTimer()
