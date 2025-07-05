@@ -1,0 +1,16 @@
+[Unit]
+Description=Autostart Service for the music analysis
+After=graphical.target
+
+[Service]
+ExecStart=/home/pi/.local/bin/uv run /home/pi/ll_brain_2025/beatDetector_multi.py
+WorkingDirectory=/home/pi/ll_brain_2025
+Restart=on-failure
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/pi/.Xauthority"
+Environment="XDG_RUNTIME_DIR=/run/user/1000"
+User=pi
+Type=simple
+
+[Install]
+WantedBy=default.target
